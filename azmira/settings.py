@@ -12,7 +12,7 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 
 from pathlib import Path
 from datetime import timedelta
-
+import os
 
 
 
@@ -34,6 +34,14 @@ ALLOWED_HOSTS = []
 AUTH_USER_MODEL = 'users.User'
 
 
+# ১. আধুনিক পদ্ধতিতে BASE_DIR ডিফাইন করুন (এটি Path object)
+BASE_DIR = Path(__file__).resolve().parent.parent
+
+# ২. মিডিয়া ফাইল সেটিংস
+MEDIA_URL = '/media/'
+# এখানে os.path.join এর বদলে Path ব্যবহার করা ভালো
+MEDIA_ROOT = BASE_DIR / 'media'
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -44,7 +52,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    'users'
+    'users',
+    'products',
+    'projects'
 ]
 
 MIDDLEWARE = [
