@@ -2,11 +2,16 @@ from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from projects.models import Project, Property, ClientReview
 from core.response import success_response, error_response
+from projects.models import (
+    Project, Property, ClientReview,
+    Message,
+    
+)
+
 from projects.serializers import(
     ProjectSerializer, PropertySerializer, FeaturedPropertySerializer,
-    BlogPostSerializer, ClientReviewSerializer
+    BlogPostSerializer, ClientReviewSerializer,MessageSerializer
 ) 
 
 # আপনার কাস্টম রেসপন্স ফাংশনগুলো (যদি অন্য ফাইল থেকে ইম্পোর্ট করেন তবে এটি লাগবে না)
@@ -156,3 +161,30 @@ class ClientReviewListView(APIView):
         reviews = ClientReview.objects.filter(is_published=True).order_by('-created_at')
         serializer = ClientReviewSerializer(reviews, many=True)
         return success_response("Client reviews retrieved successfully", serializer.data)
+    
+
+
+
+class MessageCreateView(APIView):
+    def post(self, request):
+        serializer = MessageSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return success_response(
+                "Message sent successfully",
+                serializer.data,
+                status_code=status.HTTP_201_CREATED
+            )
+        return error_response("Failed to send message", serializer.errors)
+    
+
+
+
+# GET: admin-only endpoint to view all messages
+class MessageListAdminView(APIView):
+    # permission_classes = [IsAdminUser]
+
+    def get(self, request):
+        messages = Message.objects.all().order_by('-created_at')
+        serializer = MessageSerializer(messages, many=True)
+        return success_response("All messages retrieved successfully", serializer.data)

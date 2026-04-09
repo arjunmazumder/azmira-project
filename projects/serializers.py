@@ -1,7 +1,8 @@
 from rest_framework import serializers
 from projects.models import (
     Project, Property,
-    BlogPost, ClientReview
+    BlogPost, ClientReview,
+    Message
 )
 
 
@@ -37,4 +38,11 @@ class BlogPostSerializer(serializers.ModelSerializer):
 class ClientReviewSerializer(serializers.ModelSerializer):
     class Meta:
         model = ClientReview
+        fields = '__all__'
+
+
+
+class MessageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Message
         fields = '__all__'

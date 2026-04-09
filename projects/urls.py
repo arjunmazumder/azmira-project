@@ -5,7 +5,8 @@ from projects.views import (
     ProjectListView,ProjectByTypeView,
     ProjectSearchByNameView, ProjectByLocationView,
     FeaturedPropertyListView, LatestBlogPostCreateView,
-    ClientReviewCreateView, ClientReviewListView
+    ClientReviewCreateView, ClientReviewListView,
+    MessageCreateView, MessageListAdminView
     )
 
 
@@ -24,5 +25,7 @@ urlpatterns = [
     path('latest_blog_posts/', LatestBlogPostCreateView.as_view(), name='latest-blog-posts'),
     path('create_client_reviews/', ClientReviewCreateView.as_view(), name='client-review-create'),
     path('get_client_reviews/', ClientReviewListView.as_view(), name='client-review-list'),
+    path('send_message/', MessageCreateView.as_view(), name='send-message'),
+    path('get_all_messages/', MessageListAdminView.as_view(), name='admin-message-list'),
 
 ]
