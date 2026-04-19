@@ -48,12 +48,7 @@ class Project(models.Model):
     def __str__(self):
         return self.name
 
-
-
-
-
 class Property(models.Model):
-    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='properties')
     
     # Basic Info
     title = models.CharField(max_length=255)
@@ -84,6 +79,8 @@ class Property(models.Model):
     has_lift = models.BooleanField(default=True)
     has_parking = models.BooleanField(default=False)
     has_electricity_backup = models.BooleanField(default=True)
+
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='properties')
 
     created_at = models.DateTimeField(auto_now_add=True)
     image = models.ImageField(upload_to='properties/images/', blank=True, null=True)
