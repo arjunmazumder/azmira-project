@@ -16,8 +16,7 @@ from projects.serializers import(
     BlogPostSerializer, ClientReviewSerializer,MessageSerializer
 ) 
 
-# আপনার কাস্টম রেসপন্স ফাংশনগুলো (যদি অন্য ফাইল থেকে ইম্পোর্ট করেন তবে এটি লাগবে না)
-
+#-----------list, retrieve and create all project-------------------
 class ProjectViewSet(viewsets.ModelViewSet):
     queryset = Project.objects.all().order_by('-created_at')
     serializer_class = ProjectSerializer

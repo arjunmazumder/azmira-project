@@ -89,7 +89,6 @@ class Property(models.Model):
         return f"{self.title} - {self.unit_number}"
     
 
-
 #Blog Post
 
 class BlogPost(models.Model):
@@ -104,8 +103,6 @@ class BlogPost(models.Model):
         return self.title
     
 
-
-
 class ClientReview(models.Model):
     client_name = models.CharField(max_length=255)
     review_text = models.TextField(blank=True, null=True, help_text="Client feedback or review")
@@ -118,8 +115,6 @@ class ClientReview(models.Model):
     def __str__(self):
         return f"{self.client_name} - {self.rating}⭐"
     
-
-
 
 class Message(models.Model):
     name = models.CharField(max_length=255)
