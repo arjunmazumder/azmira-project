@@ -55,8 +55,8 @@ class CustomLoginView(TokenObtainPairView):
 
 # ✅ Profile View (GET + UPDATE)
 class UserProfileView(APIView):
-    # permission_classes = [IsAuthenticated]
-
+    permission_classes = [IsAuthenticated]
+    
     # Get Profile
     def get(self, request):
         serializer = UserSerializer(request.user)
