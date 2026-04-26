@@ -6,9 +6,36 @@ from projects.models import (
 )
 
 
+# ১. লুপ এড়ানোর জন্য একটি বেসিক প্রজেক্ট সিরিয়ালাইজার
+class SimpleProjectSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Project
+        fields = ['id', 'name', 'location', 'status']
+
+
+# ২. প্রপার্টি সিরিয়ালাইজার
+class PropertySerializer(serializers.ModelSerializer):
+    image = serializers.ImageField()
+    # এখানে ProjectSerializer এর বদলে SimpleProjectSerializer ব্যবহার করুন
+    project = SimpleProjectSerializer(read_only=True)
+
+    class Meta:
+        model = Property
+        fields = [
+            'id', 'title', 'description', 'unit_number', 'size_sqft', 
+            'floor_level', 'price', 'status', 'is_featured', 'road', 
+            'bedroom', 'bathroom', 'balcony', 'has_drawing_room', 
+            'has_dining_room', 'has_kitchen', 'has_garden', 'has_hall', 
+            'has_lift', 'has_parking', 'has_electricity_backup', 
+            'image', 'created_at', 'project'
+        ]
+
+# ৩. মেইন প্রজেক্ট সিরিয়ালাইজার
 class ProjectSerializer(serializers.ModelSerializer):
     cover_image = serializers.ImageField()
-    properties = serializers.SerializerMethodField(method_name='get_properties', read_only=True)
+    # এখানে আমরা PropertySerializer ব্যবহার করছি
+    properties = PropertySerializer(many=True, read_only=True)
+
     class Meta:
         model = Project
         fields = [
@@ -18,45 +45,6 @@ class ProjectSerializer(serializers.ModelSerializer):
             'has_electricity_backup', 'total_units', 'land_area', 
             'handover_date', 'cover_image', 'created_at', 'properties'
         ]
-    def get_properties(self, obj):
-        from projects.serializers import PropertySerializer 
-        serializer = PropertySerializer(obj.properties.all(), many=True)
-        return serializer.data
-    
-
-
-class PropertySerializer(serializers.ModelSerializer):
-    image = serializers.ImageField()
-    project = ProjectSerializer(read_only=True)
-    class Meta:
-        model = Property
-        fields = [
-            'id',
-            'title',
-            'description',
-            'unit_number',
-            'size_sqft',
-            'floor_level',
-            'price',
-            'status',
-            'is_featured',
-            'road',
-            'bedroom',
-            'bathroom',
-            'balcony',
-            'has_drawing_room',
-            'has_dining_room',
-            'has_kitchen',
-            'has_garden',
-            'has_hall',
-            'has_lift',
-            'has_parking',
-            'has_electricity_backup',
-            'image',
-            'created_at',
-            'project', 
-        ]
-
 
 
 class FeaturedPropertySerializer(serializers.ModelSerializer):
