@@ -1,5 +1,7 @@
 from django.db import models
 from django.utils import timezone
+from cloudinary.models import CloudinaryField
+
 
 class Project(models.Model):
     PROJECT_TYPE_CHOICES = [
@@ -43,7 +45,8 @@ class Project(models.Model):
     total_units = models.PositiveIntegerField(default=0)
     land_area = models.CharField(max_length=100, help_text="Example: 10 Katha")
     handover_date = models.DateField(null=True, blank=True)
-    cover_image = models.ImageField(upload_to='projects/covers/', null=True, blank=True)
+    # cover_image = models.ImageField(upload_to='projects/covers/', null=True, blank=True)
+    cover_image = CloudinaryField('image', blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     def __str__(self):
         return self.name
@@ -83,7 +86,9 @@ class Property(models.Model):
     project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='properties')
 
     created_at = models.DateTimeField(auto_now_add=True)
-    image = models.ImageField(upload_to='properties/images/', blank=True, null=True)
+    # image = models.ImageField(upload_to='properties/images/', blank=True, null=True)
+    image = CloudinaryField('image', blank=True, null=True)
+
 
     def __str__(self):
         return f"{self.title} - {self.unit_number}"
@@ -95,7 +100,8 @@ class BlogPost(models.Model):
     title = models.CharField(max_length=255)
     description = models.TextField(help_text="Main content or description of the blog post")
     comments = models.TextField(blank=True, null=True, help_text="Comments or author notes")
-    cover_image = models.ImageField(upload_to='blog/covers/', blank=True, null=True)
+    # cover_image = models.ImageField(upload_to='blog/covers/', blank=True, null=True)
+    cover_image = CloudinaryField('image', blank=True, null=True)
     is_published = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -108,7 +114,8 @@ class ClientReview(models.Model):
     review_text = models.TextField(blank=True, null=True, help_text="Client feedback or review")
     rating = models.PositiveSmallIntegerField(default=5, help_text="Rating out of 5")
     video = models.FileField(upload_to='client_reviews/videos/', blank=True, null=True)
-    image = models.ImageField(upload_to='client_reviews/images/', blank=True, null=True)
+    # image = models.ImageField(upload_to='client_reviews/images/', blank=True, null=True)
+    cover_image = CloudinaryField('image', blank=True, null=True)
     is_published = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
 

@@ -2,6 +2,7 @@ from django.db import models
 from django.db import models
 from django.conf import settings
 from projects.models import Property  # Assuming Property is in the same app
+from cloudinary.models import CloudinaryField
 
 
 #---------------Booking Model--------------------------------

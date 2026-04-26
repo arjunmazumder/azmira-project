@@ -4,6 +4,7 @@ from pathlib import Path
 from datetime import timedelta
 import os
 from decouple import config
+import cloudinary
 
 
 
@@ -133,6 +134,19 @@ AUTH_PASSWORD_VALIDATORS = [
 
 # Internationalization
 # https://docs.djangoproject.com/en/6.0/topics/i18n/
+
+
+
+# Configuration       
+cloudinary.config( 
+    cloud_name = config('Cloud_name'), 
+    api_key = config('API_key'),  
+    api_secret = config('API_secret'),  # Click 'View API Keys' above to copy your API secret
+    secure=True
+)
+
+# media storage for cloudinary
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
 LANGUAGE_CODE = 'en-us'
 

@@ -32,8 +32,8 @@ class BookingSerializer(serializers.ModelSerializer):
         """
         Check that the token money meets the initial advance requirement.
         """
-        if data['token_money'] < 25000:  # Based on contract advance requirement 
+        if data['token_money'] < 0:  # Based on contract advance requirement 
             raise serializers.ValidationError(
-                {"token_money": "Initial advance must be at least BDT 25,000."}
+                {"token_money": "Initial advance must be at least BDT 1."}
             )
         return data
