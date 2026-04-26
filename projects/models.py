@@ -2,7 +2,6 @@ from django.db import models
 from django.utils import timezone
 from cloudinary.models import CloudinaryField
 
-
 class Project(models.Model):
     PROJECT_TYPE_CHOICES = [
         ('residential', 'Residential'),
