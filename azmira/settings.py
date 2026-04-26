@@ -19,10 +19,16 @@ SECRET_KEY = 'django-insecure-(fo$p76gowx9es5o6x+zo&anp05%lneh*=^t)0s@gh=c3ghh1(
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
+AUTH_USER_MODEL = 'users.User'
 
 ALLOWED_HOSTS = ['*']
+CORS_ALLOW_ALL_ORIGINS = True
 
-AUTH_USER_MODEL = 'users.User'
+# CORS_ALLOWED_ORIGINS = [
+#     'http://localhost:3000',
+# ]
+
+
 
 
 # ১. আধুনিক পদ্ধতিতে BASE_DIR ডিফাইন করুন (এটি Path object)
@@ -43,6 +49,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    "corsheaders",
     'django_filters',
     'rest_framework',
     'users',
@@ -51,6 +58,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    "corsheaders.middleware.CorsMiddleware",
     'django.middleware.security.SecurityMiddleware',
     "whitenoise.middleware.WhiteNoiseMiddleware",
     'django.contrib.sessions.middleware.SessionMiddleware',
