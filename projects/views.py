@@ -17,26 +17,28 @@ from projects.serializers import(
 ) 
 
 #-----------list, retrieve and create all project-------------------
-class ProjectViewSet(viewsets.ModelViewSet):
-    queryset = Project.objects.all().order_by('-created_at')
-    serializer_class = ProjectSerializer
 
-    def list(self, request, *args, **kwargs):
-        queryset = self.get_queryset()
-        serializer = self.get_serializer(queryset, many=True)
-        return success_response("Projects retrieved successfully", serializer.data)
+# class ProjectViewSet(viewsets.ModelViewSet):
+#     queryset = Project.objects.all().order_by('-created_at')
+#     serializer_class = ProjectSerializer
 
-    def retrieve(self, request, *args, **kwargs):
-        instance = self.get_object()
-        serializer = self.get_serializer(instance)
-        return success_response("Project details retrieved successfully", serializer.data)
+#     def list(self, request, *args, **kwargs):
+#         queryset = self.get_queryset()
+#         serializer = self.get_serializer(queryset, many=True)
+#         return success_response("Projects retrieved successfully", serializer.data)
 
-    def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return success_response("Project created successfully", serializer.data, status_code=status.HTTP_201_CREATED)
-        return error_response("Project creation failed", serializer.errors)
+#     def retrieve(self, request, *args, **kwargs):
+#         instance = self.get_object()
+#         serializer = self.get_serializer(instance)
+#         return success_response("Project details retrieved successfully", serializer.data)
+
+#     def create(self, request, *args, **kwargs):
+#         serializer = self.get_serializer(data=request.data)
+#         if serializer.is_valid():
+#             serializer.save()
+#             return success_response("Project created successfully", serializer.data, status_code=status.HTTP_201_CREATED)
+#         return error_response("Project creation failed", serializer.errors)
+
 
 # ১. সব প্রজেক্টের লিস্ট পাওয়ার জন্য আলাদা ভিউ
 class ProjectListView(APIView):
@@ -70,7 +72,6 @@ class PropertyListView(APIView):
         
         return success_response("All properties retrieved successfully", response_data)
     
-
 # ২. টাইপ অনুযায়ী প্রজেক্ট পাওয়ার জন্য আলাদা ভিউ
 class ProjectByTypeView(APIView):
     def get(self, request):
@@ -122,33 +123,33 @@ class ProjectByLocationView(APIView):
         )
 
 
-class PropertyViewSet(viewsets.ModelViewSet):
-    queryset = Property.objects.all().order_by('-created_at')
-    serializer_class = PropertySerializer
+# class PropertyViewSet(viewsets.ModelViewSet):
+#     queryset = Property.objects.all().order_by('-created_at')
+#     serializer_class = PropertySerializer
 
-    def list(self, request, *args, **kwargs):
-        queryset = self.get_queryset()
-        serializer = self.get_serializer(queryset, many=True)
-        return success_response("Properties retrieved successfully", serializer.data)
+#     def list(self, request, *args, **kwargs):
+#         queryset = self.get_queryset()
+#         serializer = self.get_serializer(queryset, many=True)
+#         return success_response("Properties retrieved successfully", serializer.data)
 
-    def retrieve(self, request, *args, **kwargs):
-        instance = self.get_object()
-        serializer = self.get_serializer(instance)
-        return success_response("Property details retrieved successfully", serializer.data)
+#     def retrieve(self, request, *args, **kwargs):
+#         instance = self.get_object()
+#         serializer = self.get_serializer(instance)
+#         return success_response("Property details retrieved successfully", serializer.data)
 
-    # কাস্টম ফিচার্ড এপিআই এন্ডপয়েন্ট
-    @action(detail=False, methods=['get'])
-    def featured(self, request):
-        featured_list = Property.objects.filter(is_featured=True)
-        serializer = FeaturedPropertySerializer(featured_list, many=True)
-        return success_response("Featured properties retrieved successfully", serializer.data)
+#     # কাস্টম ফিচার্ড এপিআই এন্ডপয়েন্ট
+#     @action(detail=False, methods=['get'])
+#     def featured(self, request):
+#         featured_list = Property.objects.filter(is_featured=True)
+#         serializer = FeaturedPropertySerializer(featured_list, many=True)
+#         return success_response("Featured properties retrieved successfully", serializer.data)
 
-    def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return success_response("Property created successfully", serializer.data, status_code=status.HTTP_201_CREATED)
-        return error_response("Property creation failed", serializer.errors)
+#     def create(self, request, *args, **kwargs):
+#         serializer = self.get_serializer(data=request.data)
+#         if serializer.is_valid():
+#             serializer.save()
+#             return success_response("Property created successfully", serializer.data, status_code=status.HTTP_201_CREATED)
+#         return error_response("Property creation failed", serializer.errors)
     
 class FeaturedPropertyListView(APIView):
     def get(self, request):
@@ -207,94 +208,154 @@ class MessageListAdminView(APIView):
         return success_response("All messages retrieved successfully", serializer.data)
     
 
+
 class ProjectViewSet(viewsets.ModelViewSet):
-    # সব প্রজেক্ট নেওয়ার সময় select_related বা prefetch_related ব্যবহার করা ভালো পারফরম্যান্সের জন্য
+    # ডাটাবেজ অপ্টিমাইজেশন: এক কোয়েরিতেই সব প্রপার্টি ডাটা নিয়ে আসবে (N+1 Problem Fix)
     queryset = Project.objects.all().prefetch_related('properties').order_by('-created_at')
     serializer_class = ProjectSerializer
     
-    # ফিল্টার ব্যাকএন্ডস
+    # ফিল্টার, সার্চ এবং অর্ডারিং কনফিগারেশন
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     
-    # সার্চ ফিল্ডস: এখানে প্রজেক্ট এবং প্রপার্টি উভয় মডেলের ফিল্ড আছে
     search_fields = [
-        # Project মডেলের ফিল্ড
-        'name', 
-        'location', 
-        'developer_name', 
-        'project_type', 
-        'status',
-        
-        # Property (Related) মডেলের ফিল্ড (Double Underscore ব্যবহার করে)
-        'properties__title', 
-        'properties__unit_number',
-        'properties__road',
-        'properties__price',
-        'properties__description'
+        'name', 'location', 'developer_name', 'project_type', 'status',
+        'properties__title', 'properties__unit_number', 'properties__road'
     ]
-    
-    # অর্ডারিং ফিল্ডস
-    ordering_fields = ['created_at', 'name']
 
+    # ১. লিস্ট ভিউ (সব প্রজেক্ট)
     def list(self, request, *args, **kwargs):
-        # সার্চ এবং ফিল্টার অনুযায়ী কুয়েরিসেট ফিল্টার করা
         queryset = self.filter_queryset(self.get_queryset())
         
-        # ফিল্টার করার পর মোট কয়টি প্রজেক্ট পাওয়া গেল
-        total_count = queryset.count()
-        
-        # ডাটা সিরিয়ালাইজ করা
+        # প্যাগিনেশন চেক
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
         serializer = self.get_serializer(queryset, many=True)
+        return success_response(f"Successfully retrieved {queryset.count()} projects", serializer.data)
+
+    # ২. নির্দিষ্ট প্রজেক্ট ডিটেইলস
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        return success_response("Project details retrieved successfully", serializer.data)
+
+    # ৩. নতুন প্রজেক্ট তৈরি (POST)
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return success_response("Project created successfully", serializer.data, status_code=status.HTTP_201_CREATED)
+        return error_response("Project creation failed", serializer.errors)
+
+    # ৪. প্রজেক্ট আপডেট (PUT/PATCH)
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
         
-        # আপনার ডিমান্ড অনুযায়ী স্ট্যান্ডার্ড রেসপন্স ফরম্যাট
-        response_data = {
-            "total_count": total_count,
-            "projects": serializer.data
-        }
-        
-        return success_response("Projects retrieved successfully", response_data)
+        if serializer.is_valid():
+            serializer.save()
+            return success_response("Project updated successfully", serializer.data)
+        return error_response("Project update failed", serializer.errors)
+
+    # ৫. আংশিক আপডেট (PATCH)
+    def partial_update(self, request, *args, **kwargs):
+        kwargs['partial'] = True
+        return self.update(request, *args, **kwargs)
+
+    # ৬. প্রজেক্ট ডিলিট (DELETE)
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        instance.delete()
+        return success_response("Project deleted successfully", None, status_code=status.HTTP_204_NO_CONTENT)
     
+
 #-----------------property searching-----------------------
+
 
 class PropertyViewSet(viewsets.ModelViewSet):
     # ডাটাবেজ অপ্টিমাইজেশনের জন্য select_related ব্যবহার করা হয়েছে
     queryset = Property.objects.all().select_related('project').order_by('-created_at')
     serializer_class = PropertySerializer
     
-    # ব্যাকএন্ডস: ফিল্টার, সার্চ এবং অর্ডারিং (সর্টিং)
+    # ফিল্টার, সার্চ এবং অর্ডারিং ব্যাকএন্ডস
     filter_backends = [
         DjangoFilterBackend, 
         filters.SearchFilter, 
         filters.OrderingFilter
     ]
     
-    # কাস্টম ফিল্টার ক্লাস
+    # কাস্টম ফিল্টার ক্লাস এবং সার্চ ফিল্ডস
     filterset_class = PropertyFilter
-    
-    # সার্চ ফিল্ডস (গ্লোবাল সার্চের জন্য)
     search_fields = [
         'title', 'unit_number', 'road', 'description', 
         'project__name', 'project__location'
     ]
     
-    # সর্টিং বা অর্ডারিং ফিল্ডস (ইউজার যা দিয়ে সর্ট করতে পারবে)
+    # সর্টিং বা অর্ডারিং ফিল্ডস
     ordering_fields = ['price', 'size_sqft', 'created_at', 'floor_level']
-    # ডিফল্টভাবে নতুনগুলো আগে দেখাবে
     ordering = ['-created_at']
 
     def list(self, request, *args, **kwargs):
         # সার্চ এবং ফিল্টার অ্যাপ্লাই করা
         queryset = self.filter_queryset(self.get_queryset())
         
-        # ফিল্টার করার পর মোট রেজাল্ট সংখ্যা
-        total_count = queryset.count()
-        
-        # ডাটা সিরিয়ালাইজ করা
+        # প্যাগিনেশন চেক (যদি প্যাগিনেশন সেটআপ করা থাকে)
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
         serializer = self.get_serializer(queryset, many=True)
-        
-        # স্ট্যান্ডার্ড রেসপন্স ডাটা
         response_data = {
-            "total_count": total_count,
+            "total_count": queryset.count(),
             "properties": serializer.data
         }
+        return success_response("Successfully retrieved properties", response_data)
+
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        return success_response("Property details retrieved successfully", serializer.data)
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return success_response(
+                "Property created successfully", 
+                serializer.data, 
+                status_code=status.HTTP_201_CREATED
+            )
+        return error_response("Property creation failed", serializer.errors)
+    
+    def update(self, request, *args, **kwargs):
+        """
+        সম্পূর্ণ প্রপার্টি আপডেট করার জন্য (PUT)
+        """
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
         
-        return success_response(f"Successfully retrieved {total_count} properties", response_data)
+        if serializer.is_valid():
+            serializer.save()
+            return success_response("Property updated successfully", serializer.data)
+        
+        return error_response("Property update failed", serializer.errors)
+
+    def partial_update(self, request, *args, **kwargs):
+        """
+        আংশিক আপডেট করার জন্য (PATCH) - যেমন শুধু দাম বা স্ট্যাটাস পরিবর্তন
+        """
+        kwargs['partial'] = True
+        return self.update(request, *args, **kwargs)
+
+    # কাস্টম ফিচার্ড এপিআই এন্ডপয়েন্ট
+    @action(detail=False, methods=['get'])
+    def featured(self, request):
+        # এখানেও অপ্টিমাইজেশন ব্যবহার করা হয়েছে
+        featured_list = Property.objects.filter(is_featured=True).select_related('project')
+        serializer = FeaturedPropertySerializer(featured_list, many=True)
+        return success_response("Featured properties retrieved successfully", serializer.data)
