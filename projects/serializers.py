@@ -15,10 +15,14 @@ class SimpleProjectSerializer(serializers.ModelSerializer):
 
 # ২. প্রপার্টি সিরিয়ালাইজার
 class PropertySerializer(serializers.ModelSerializer):
-    image = serializers.ImageField()
-    # এখানে ProjectSerializer এর বদলে SimpleProjectSerializer ব্যবহার করুন
-    project = SimpleProjectSerializer(read_only=True)
-
+    # write করার জন্য project id
+    project = serializers.PrimaryKeyRelatedField(
+        queryset=Project.objects.all(),
+        write_only=True
+    )
+    # read করার জন্য nested project
+    project_details = SimpleProjectSerializer(source='project', read_only=True)
+    image = serializers.ImageField(required=False)
     class Meta:
         model = Property
         fields = [
@@ -27,13 +31,14 @@ class PropertySerializer(serializers.ModelSerializer):
             'bedroom', 'bathroom', 'balcony', 'has_drawing_room', 
             'has_dining_room', 'has_kitchen', 'has_garden', 'has_hall', 
             'has_lift', 'has_parking', 'has_electricity_backup', 
-            'image', 'created_at', 'project'
+            'image', 'created_at', 
+            'project',          # write
+            'project_details'   # read
         ]
 
 # ৩. মেইন প্রজেক্ট সিরিয়ালাইজার
 class ProjectSerializer(serializers.ModelSerializer):
-    cover_image = serializers.ImageField()
-    # এখানে আমরা PropertySerializer ব্যবহার করছি
+    cover_image = serializers.ImageField(required=False)
     properties = PropertySerializer(many=True, read_only=True)
 
     class Meta:
