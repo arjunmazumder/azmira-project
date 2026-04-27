@@ -1,6 +1,8 @@
 from rest_framework import viewsets, filters, status
 from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.parsers import MultiPartParser, FormParser
 from projects.filters import PropertyFilter
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -210,6 +212,7 @@ class MessageListAdminView(APIView):
 
 
 class ProjectViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated]
     # ডাটাবেজ অপ্টিমাইজেশন: এক কোয়েরিতেই সব প্রপার্টি ডাটা নিয়ে আসবে (N+1 Problem Fix)
     queryset = Project.objects.all().prefetch_related('properties').order_by('-created_at')
     serializer_class = ProjectSerializer
@@ -276,6 +279,8 @@ class ProjectViewSet(viewsets.ModelViewSet):
 
 
 class PropertyViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated]
+    parser_classes = [MultiPartParser, FormParser]
     # ডাটাবেজ অপ্টিমাইজেশনের জন্য select_related ব্যবহার করা হয়েছে
     queryset = Property.objects.all().select_related('project').order_by('-created_at')
     serializer_class = PropertySerializer
@@ -351,6 +356,12 @@ class PropertyViewSet(viewsets.ModelViewSet):
         """
         kwargs['partial'] = True
         return self.update(request, *args, **kwargs)
+    
+    # ৬. প্রজেক্ট ডিলিট (DELETE)
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        instance.delete()
+        return success_response("Property deleted successfully", None, status_code=status.HTTP_204_NO_CONTENT)
 
     # কাস্টম ফিচার্ড এপিআই এন্ডপয়েন্ট
     @action(detail=False, methods=['get'])

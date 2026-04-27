@@ -32,26 +32,37 @@ class RegisterView(generics.CreateAPIView):
 
 # ✅ Login (JWT)
 class CustomLoginView(TokenObtainPairView):
-
     def post(self, request, *args, **kwargs):
-        response = super().post(request, *args, **kwargs)
+        # 1. Instantiate the default JWT serializer to validate email/password
+        serializer = self.get_serializer(data=request.data)
 
-        if response.status_code == 200:
+        try:
+            # 2. Check credentials
+            serializer.is_valid(raise_exception=True)
+        except Exception:
             return Response({
-                "message": "Login successful",
-                "data": {
-                    "requests": [{
-                        "access": response.data['access'],
-                        "refresh": response.data['refresh']
-                    }]
-                }
-            }, status=status.HTTP_200_OK)
+                "message": "Login failed",
+                "data": {"errors": serializer.errors}
+            }, status=status.HTTP_400_BAD_REQUEST)
 
+        # 3. SimpleJWT attaches the user object to the serializer upon success
+        user = serializer.user
+        token_data = serializer.validated_data
+        
+        # 4. Use your custom UserSerializer for the response data
+        user_data = UserSerializer(user).data
+
+        # 5. Return tokens first, then user info
         return Response({
-            "message": "Login failed",
-            "data": {"requests": [response.data]}
-        }, status=status.HTTP_400_BAD_REQUEST)
-
+            "message": "Login successful",
+            "data": {
+                "tokens": {
+                    "access": token_data.get('access'),
+                    "refresh": token_data.get('refresh')
+                },
+                "userinfo": user_data
+            }
+        }, status=status.HTTP_200_OK)
 
 # ✅ Profile View (GET + UPDATE)
 class UserProfileView(APIView):

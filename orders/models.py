@@ -6,7 +6,7 @@ from cloudinary.models import CloudinaryField
 
 
 #---------------Booking Model--------------------------------
-class Booking(models.Model):
+class  Booking(models.Model):
     STATUS_CHOICES = [
         ('pending', 'Pending Approval'),
         ('confirmed', 'Confirmed'),
